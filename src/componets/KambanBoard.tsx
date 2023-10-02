@@ -1,9 +1,10 @@
-import { Column, Id } from "../Types";
+import { Column, Id, Task } from "../Types";
 import Plusicon from "../icons/Plusicon";
 import { useMemo, useState } from "react";
 import ColumnContainer from "./ColumnContainer";
 import {
   DndContext,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -12,6 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
+import TaskCard from "./TaskCard";
 
 function KambanBoard() {
   const [columns, setColumns] = useState<Column[]>([]);
@@ -21,12 +23,15 @@ function KambanBoard() {
   }, [columns]);
   console.log(columns);
 
+  const [tasks, setTasks] = useState<Task[]>([]);
+
   const [activeColumnId, setActiveColumnId] = useState<Column | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 300,
+        distance: 3,
       },
     })
   );
@@ -44,6 +49,40 @@ function KambanBoard() {
     setColumns(filteredColumns);
   };
 
+  const updateColumn = (id: Id, title: string) => {
+    const newColums = columns.map((col) => {
+      if (col.id === id) {
+        return { ...col, title };
+      }
+      return col;
+    });
+    setColumns(newColums);
+  };
+
+  const createTask = (columnId: Id) => {
+    const newTask: Task = {
+      id: generateID(),
+      columnId,
+      content: `Task ${tasks.length + 1}`,
+    };
+    setTasks([...tasks, newTask]);
+  };
+
+  const deleteTask = (id: Id) => {
+    const newTasts = tasks.filter((task) => task.id !== id);
+    setTasks(newTasts);
+  };
+
+  const updateTask = (id: Id, content: string) => {
+    const newTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, content };
+      }
+      return task;
+    });
+    setTasks(newTasks);
+  };
+
   const generateID = () => {
     return Math.floor(Math.random() * 1000001);
   };
@@ -53,6 +92,24 @@ function KambanBoard() {
       setActiveColumnId(e.active.data.current.column);
       return;
     }
+    if (e.active.data.current?.type === "Task") {
+      setActiveTask(e.active.data.current.task);
+      return;
+    }
+  };
+
+  const onDragOver = (e: DragOverEvent) => {
+    const { active, over } = e;
+    if (!over) return;
+
+    const activeColumnId = active.id;
+    const overColumnId = over.id;
+
+    if (activeColumnId === overColumnId) return;
+
+    // droping a task over another taks
+
+    // drp a task on other column
   };
   const onDragEnd = (e: DragStartEvent) => {
     const { active, over } = e;
@@ -81,6 +138,7 @@ function KambanBoard() {
         sensors={sensors}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        onDragOver={onDragOver}
       >
         <div className="m-auto flex gap-4">
           <div className="flex gap-4">
@@ -90,6 +148,11 @@ function KambanBoard() {
                   key={col.id}
                   column={col}
                   delelteColumn={deleteColumn}
+                  updateColumn={updateColumn}
+                  createTask={createTask}
+                  tasks={tasks.filter((task) => task.columnId === col.id)}
+                  deleteTask={deleteTask}
+                  updateTask={updateTask}
                 />
               ))}
             </SortableContext>
@@ -110,6 +173,20 @@ function KambanBoard() {
               <ColumnContainer
                 column={activeColumnId}
                 delelteColumn={deleteColumn}
+                updateColumn={updateColumn}
+                createTask={createTask}
+                updateTask={updateTask}
+                deleteTask={deleteTask}
+                tasks={tasks.filter(
+                  (task) => task.columnId === activeColumnId.id
+                )}
+              />
+            )}
+            {activeTask && (
+              <TaskCard
+                task={activeTask}
+                deleteTask={deleteTask}
+                updateTask={updateTask}
               />
             )}
           </DragOverlay>,
