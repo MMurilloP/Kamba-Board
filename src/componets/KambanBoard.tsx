@@ -1,5 +1,5 @@
 import { Column, Id, Task } from "../Types";
-import Plusicon from "../icons/Plusicon";
+import PlusIcon from "../icons/Plusicon";
 import { useMemo, useState } from "react";
 import ColumnContainer from "./ColumnContainer";
 import {
@@ -107,7 +107,7 @@ function KambanBoard() {
     const activeId = active.id;
     const overId = over.id;
 
-    if (activeColumnId === overId) return;
+    if (activeColumnId && String(activeColumnId) === String(overId)) return;
 
     const isActiveATask = active.data.current?.type === "Task";
     const isOverATask = over.data.current?.type === "Task";
@@ -137,7 +137,7 @@ function KambanBoard() {
       });
     }
   };
-  const onDragEnd = (e: DragStartEvent) => {
+  const onDragEnd = (e: DragStartEvent & { over: HTMLElement }) => {
     setActiveColumnId(null);
     setActiveTask(null);
     const { active, over } = e;
@@ -165,11 +165,11 @@ function KambanBoard() {
       <h1 className="text-6xl text-center p-10 font-extrabold text-gray-900">
         Kanban Board
       </h1>
-      <p className="text-3xl text-center pb-5 font-semibold text-gray-600">
+      <p className="text-3xl text-center pb-2 font-semibold text-gray-600">
         Drag and Drop
       </p>
 
-      <div className="m-auto flex min-h-screen w-full items-center  overflow-x-auto overflow-y-hidden px-[40px]">
+      <div className="m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40px]">
         <DndContext
           sensors={sensors}
           onDragStart={onDragStart}
@@ -199,7 +199,7 @@ function KambanBoard() {
               className="h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg bg-mainBackgroundColor border-2 boder-columnBackgroundColor p-4 ring-rose-500 hover:ring-2 flex gap-2"
             >
               {" "}
-              <Plusicon />
+              <PlusIcon />
               Add Column
             </button>
           </div>
