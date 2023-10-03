@@ -5,6 +5,7 @@ import ColumnContainer from "./ColumnContainer";
 import {
   DndContext,
   DragOverEvent,
+  DragEndEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -137,10 +138,10 @@ function KambanBoard() {
       });
     }
   };
-  const onDragEnd = (e: DragStartEvent & { over: HTMLElement }) => {
+  const onDragEnd = (event: DragEndEvent) => {
     setActiveColumnId(null);
     setActiveTask(null);
-    const { active, over } = e;
+    const { active, over } = event;
     if (!over) return;
 
     const activeColumnId = active.id;
