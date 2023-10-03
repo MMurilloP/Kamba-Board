@@ -21,7 +21,6 @@ function KambanBoard() {
   const columnsId = useMemo(() => {
     return columns.map((column) => column.id);
   }, [columns]);
-  console.log(columns);
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -163,9 +162,13 @@ function KambanBoard() {
 
   return (
     <>
-      <h1 className="text-5xl text-center p-10 font-bold text-gray-800 bg-gradient-to-r from-purple-500 to-pink-500">
+      <h1 className="text-6xl text-center p-10 font-extrabold text-gray-900">
         Kanban Board
-      </h1>{" "}
+      </h1>
+      <p className="text-3xl text-center pb-5 font-semibold text-gray-600">
+        Drag and Drop
+      </p>
+
       <div className="m-auto flex min-h-screen w-full items-center  overflow-x-auto overflow-y-hidden px-[40px]">
         <DndContext
           sensors={sensors}
